@@ -1,16 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import { StyledIssueList } from './styled';
 import IssueItem from './IssueItem/';
+import { Spin, message, Button, Input } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 
 function IssueList() {
-  const [issueValue, setIssueValue] = React.useState('');
-  const [issues, setIssues] = React.useState('');
-  console.log(issues);
+  const [repoValue, setRepoValue] = useState('');
+  const [issues, setIssues] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  async function getIssues(repo) {
-    const response = await fetch(`https://api.github.com/repos/${repo}/issues`);
-    const issues = await response.json();
-    setIssues(issues);
+  function getIssues(repo) {
+    setLoading(true);
+    axios
+      .get(`https://api.github.com/repos/${repo}/issues?state=all`)
+      .then((response) => {
+        const issues = response.data;
+        setIssues(issues);
+        setLoading(false);
+      })
+      .catch((error) => {
+        message.error(`${error.message}. Please try another repository`);
+        setLoading(false);
+      });
   }
 
   function sortByOldest() {
@@ -37,41 +49,65 @@ function IssueList() {
   }
 
   function handleChange(event) {
-    setIssueValue(event.target.value);
+    setRepoValue(event.target.value);
   }
 
   function handleSubmit(event) {
-    getIssues(issueValue);
+    getIssues(repoValue);
     event.preventDefault();
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <h1>Github list of issues:</h1>
+
+      <form onSubmit={handleSubmit} style={{ marginTop: '25px' }}>
         <label htmlFor='issueInput'>
           Enter user and repository (e.g.: 'microsoft/typescript'):
         </label>
         <br />
-        <input
+        <Input
+          style={{ width: '220px', marginRight: '5px' }}
+          size='medium'
           name='issueInput'
           id='issueInput'
           type='text'
-          value={issueValue}
+          value={repoValue}
           onChange={handleChange}
         />
-        <button type='submit'>Get info</button>
+        <Button
+          htmlType='submit'
+          type='primary'
+          shape='circle'
+          size='large'
+          icon={<SearchOutlined />}
+        />
       </form>
 
-      <button onClick={() => sortByOldest()}>Sort by oldest</button>
-      <button onClick={() => sortByNewest()}>Sort by newest</button>
-      <button onClick={() => filterByLabel()}>Filter by label</button>
-      <button onClick={() => filterByAssignee()}>Filter by assignee</button>
+      <div style={{ marginTop: '25px' }}>
+        <Button size='small' onClick={() => sortByOldest()}>
+          Sort by oldest
+        </Button>
+        <Button size='small' onClick={() => sortByNewest()}>
+          Sort by newest
+        </Button>
+        <Button size='small' onClick={() => filterByLabel()}>
+          Filter by label
+        </Button>
+        <Button size='small' onClick={() => filterByAssignee()}>
+          Filter by assignee
+        </Button>
+      </div>
+
+      <div>{loading && <Spin color='warning' size='lg' children='' />}</div>
 
       {issues.length > 0 && (
         <StyledIssueList>
           {issues.map((issue) => (
             <IssueItem
               key={issue.id}
+              id={issue.id}
+              issueUrl={issue.url}
               title={issue.title}
               labels={issue.labels}
               assignee={issue.assignee}

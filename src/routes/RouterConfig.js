@@ -8,7 +8,7 @@ export const RouterConfig = [
     component: Issues,
   },
   {
-    path: '/issue/:id',
+    path: '/:user/:repo/:issues/:number',
     component: IssueDetails,
   },
   {

@@ -7,7 +7,6 @@ function App() {
   return (
     <Router>
       <div className='App'>
-        <h1>Github list of issues:</h1>
         <AppRouter />
       </div>
     </Router>
