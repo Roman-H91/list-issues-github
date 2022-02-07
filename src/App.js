@@ -1,4 +1,3 @@
-import 'antd/dist/antd.min.css';
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AppRouter from './routes/AppRouter';

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faComment,
+  faComments,
   faTag,
   faUser,
   faInfo,
@@ -15,7 +15,7 @@ function IssueItem({ id, title, labels, assignee, comments, issueUrl }) {
   return (
     <StyledIssueItem>
       <div>
-        <FontAwesomeIcon icon={faComment} /> {title}
+        <FontAwesomeIcon icon={faInfo} /> {title}
       </div>
       <div>
         <FontAwesomeIcon icon={faTag} />{' '}
@@ -28,7 +28,7 @@ function IssueItem({ id, title, labels, assignee, comments, issueUrl }) {
         {assignee?.login ? <span>{assignee.login}</span> : 'none'}
       </div>
       <div>
-        <FontAwesomeIcon icon={faInfo} /> {comments}
+        <FontAwesomeIcon icon={faComments} /> {comments}
       </div>
       <Link
         to={`${splitUrl[1]}`}

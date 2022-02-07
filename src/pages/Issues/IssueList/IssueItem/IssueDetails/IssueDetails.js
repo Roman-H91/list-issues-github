@@ -6,37 +6,46 @@ import { Button } from 'antd';
 import { Spin, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faComment,
+  faComments,
   faQuestionCircle,
   faTag,
   faUser,
   faInfo,
   faFileAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  issueDetailsFetchInProgressAction,
+  issueDetailsFetchSuccesAction,
+  issueDetailsFetchErrorAction,
+  issueDetailsReset,
+} from '../../../actions/issueDetails.actions';
 
 function IssueDetails() {
   const { user, repo, issues, number } = useParams();
-  const [issueDetails, setIssueDetails] = React.useState('');
-  const [loading, setLoading] = useState(false);
+  const { issueDetails, loading } = useSelector(
+    (state) => state.issueDetailsReducer
+  );
 
-  let history = useHistory();
+  const dispatch = useDispatch();
+  const history = useHistory();
 
   React.useEffect(() => {
     getIssueDetails();
   }, []);
 
   function getIssueDetails() {
-    setLoading(true);
+    dispatch(issueDetailsReset());
+    dispatch(issueDetailsFetchInProgressAction());
     axios
       .get(`https://api.github.com/repos/${user}/${repo}/${issues}/${number}`)
       .then((response) => {
         const issueDetails = response.data;
-        setIssueDetails(issueDetails);
-        setLoading(false);
+        dispatch(issueDetailsFetchSuccesAction(issueDetails));
       })
       .catch((error) => {
+        dispatch(issueDetailsFetchErrorAction(error));
         message.error(`${error.message}. Please try another repository`);
-        setLoading(false);
       });
   }
 
@@ -49,7 +58,7 @@ function IssueDetails() {
       <h1>Issue details:</h1>
       <StyledIssueDetails>
         <div>
-          <FontAwesomeIcon icon={faComment} /> {issueDetails.title}
+          <FontAwesomeIcon icon={faInfo} /> {issueDetails.title}
         </div>
         <div>
           <FontAwesomeIcon icon={faQuestionCircle} /> {issueDetails.state}
@@ -72,7 +81,7 @@ function IssueDetails() {
           )}
         </div>
         <div>
-          <FontAwesomeIcon icon={faInfo} /> {issueDetails.comments}
+          <FontAwesomeIcon icon={faComments} /> {issueDetails.comments}
         </div>
         <div>
           <FontAwesomeIcon icon={faFileAlt} />{' '}
